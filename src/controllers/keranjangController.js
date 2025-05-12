@@ -152,9 +152,9 @@ exports.checkOutKeranjang = async (req, res) => {
         quantity: item.quantity,
         subtotal: item.totalHarga,
       });
-      const produk = await Produk.findByPk(item.produkId);
-      produk.stok -= item.quantity;
-      await produk.save();
+      //   const produk = await Produk.findByPk(item.produkId);
+      //   produk.stok -= item.quantity;
+      //   await produk.save();
     }
 
     await keranjang.destroy({

@@ -5,6 +5,7 @@ const sequelize = require("./config/config.json");
 const path = require("path");
 require("dotenv").config();
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.send("Jalan");
@@ -13,6 +14,8 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 const router = require("./src/routes/index.js");
+
+
 app.use("/api/v1", router);
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

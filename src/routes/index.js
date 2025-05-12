@@ -6,6 +6,7 @@ const produkController = require("../controllers/produkController");
 const userController = require("../controllers/userController");
 const transaksiController = require("../controllers/transaksiController");
 const keranjangController = require("../controllers/keranjangController");
+const paymentController = require("../controllers/paymentController");
 const { verifikasiToken, isAdmin } = require("../middlewares/authMiddlewares");
 const upload = require("../middlewares/uploadImage");
 
@@ -108,5 +109,18 @@ router.delete(
   "/keranjang/delete-keranjang-all",
   keranjangController.clearKeranjang
 );
+router.post(
+  "/payment/midtrans/create-payment",
+  paymentController.createMidtransTransaksi
+);
+
+router.post(
+  "/payment/midtrans/notifikasi",
+  express.raw({ type: "application/json" }),
+  paymentController.handleNotifications
+);
+
+
+
 
 module.exports = router;
