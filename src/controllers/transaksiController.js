@@ -44,7 +44,10 @@ exports.createTransaksi = async (req, res) => {
 exports.getAllTransaksi = async (req, res) => {
   try {
     const data = await Transaksi.findAll({
-      include: [{ model: TransaksiItems, include: ["Produk"] }],
+      include: [
+        { model: TransaksiItems, include: ["Produk"] },
+        { model: Pengguna, attributes: ["id", "nama", "email"] },
+      ],
     });
     res.status(200).json({ message: "Berhasil ambil semua transaksi", data });
   } catch (error) {
@@ -100,12 +103,6 @@ exports.deleteTransaksi = async (req, res) => {
 exports.getLaporanTransaksi = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    // const tanggalFlter =
-    //   startDate && endDate
-    //     ? {
-    //         tanggal: { [Op.between]: [new Date(startDate), new Date(endDate)] },
-    //       }
-    //     : {};
     let tanggalFlter = {};
     if (startDate && endDate) {
       const start = new Date(startDate);

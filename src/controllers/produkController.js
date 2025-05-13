@@ -3,7 +3,12 @@ const { Produk, Kategori } = require("../../models");
 exports.getAllProduk = async (req, res) => {
   try {
     const produk = await Produk.findAll({
-      include: [{ model: Kategori }],
+      include: [
+        {
+          model: Kategori,
+          attributes: ["nama", "deskripsi"],
+        },
+      ],
     });
     const dataProduk = produk;
     return res.status(200).json({ message: "data ditampilkan", dataProduk });
@@ -18,7 +23,7 @@ exports.getProdukById = async (req, res) => {
   try {
     const { id } = req.params;
     const produk = await Produk.findByPk(id, {
-      include: [{ model: Kategori }],
+      include: [{ model: Kategori, attributes: ["nama", "deskripsi"] }],
     });
     if (!produk) {
       return res.status(400).json({ message: "data tidak ditemukan" });
@@ -103,7 +108,7 @@ exports.deleteProduk = async (req, res) => {
     if (!produk) {
       return res.status(400).json({ message: "data tidak ditemukan" });
     }
-    const dataProduk = await Produk.destroy();
+    const dataProduk = await Produk.destroy({ where: { id } });
     return res.status(200).json({
       message: `data berhasil dihapus untuk produk ke ${id}`,
       dataProduk,

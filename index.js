@@ -23,7 +23,9 @@ app.use((err, req, res, next) => {
   }
   next();
 });
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use('/uploads', express.static('uploads'))
 app.listen(PORT, () => {
   console.log(`Server jalan di port ${PORT}`);
 });

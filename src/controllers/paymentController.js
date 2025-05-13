@@ -57,8 +57,21 @@ exports.handleNotifications = async (req, res) => {
     const notification = req.body;
     console.log("📨 Midtrans Notification Received:", notification);
     const orderId = notification.order_id;
-    const [, id] = orderId.split("-");
+    if (!orderId || typeof orderId !== "string") {
+      console.warn("⚠️ order_id tidak tersedia atau bukan string:", orderId);
+      return res
+        .status(400)
+        .json({ message: "Invalid order_id in notification" });
+    }
 
+    // const [, id] = orderId.split("-");
+    const parts = orderId.split("-");
+    if (parts.length < 2) {
+      console.warn("⚠️ Format order_id tidak sesuai:", orderId);
+      return res.status(400).json({ message: "order_id format is invalid" });
+    }
+
+    const id = parts[1];
     let newStatus;
     switch (notification.transaction_status) {
       case "capture":
