@@ -187,15 +187,55 @@ exports.cetakLaporanTransaksi = async (req, res) => {
 
     // Logo & Title
     // doc.image("public/logo.png", 50, 45, { width: 50 });
-    doc.fontSize(16).text("LAPORAN TRANSAKSI", 110, 57);
-    doc.fontSize(10).text(`Dicetak pada: ${moment().format("LLL")}`, 50, 100);
-    doc.moveDown();
+
+    // const pageWidth = doc.page.width;
+    // const margin = 50;
+
+    // // Teks kiri
+    // const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
+    // doc.fontSize(10).text(printedAt, margin, 100);
+
+    // // Teks kanan
+    // const printedBy = `Dicetak oleh: Admin`;
+    // const textWidth = doc.widthOfString(printedBy);
+    // const rightX = pageWidth - margin - textWidth;
+    // doc.text(printedBy, rightX, 100);
+
+    // doc.fontSize(16).text("LAPORAN TRANSAKSI", 110, 57);
+    // doc.fontSize(10).text(`Dicetak pada: ${moment().format("LLL")}`, 50, 100);
+    //   const pageWidth = doc.page.width;
+    //   const margin = 50;
+    //   const text = `Dicetak oleh: ${moment().format("LLL")}`;
+
+    //   doc.fontSize(10).text(text, margin, 110, {
+    //     width: pageWidth - 2 * margin,
+    //     align: "right",
+    //   });
+    const pageWidth = doc.page.width;
+    const margin = 50;
+
+    // Judul
+    doc.fontSize(16).text("LAPORAN TRANSAKSI", margin, 57);
+
+    // Teks kiri dan kanan sejajar (pada y = 100)
+    const printedBy = `Dicetak oleh: Admin`;
+    const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
+
+    doc.fontSize(10).text(printedAt, margin, 100, 100);
+
+    const printedByWidth = doc.widthOfString(printedBy);
+    const rightX = pageWidth - margin - printedByWidth;
+    doc.text(printedBy, rightX, 100);
+
+    // 🔧 Reset posisi X ke kiri sebelum isi laporan
+    doc.text("", margin); // set x kembali ke kiri
+    doc.moveDown(2); // turun 2 baris
 
     transaksi.forEach((trx, index) => {
       doc.fontSize(11).text(`No. ${index + 1}`);
       doc.text(`Tanggal: ${moment(trx.tanggal).format("LL")}`);
       doc.text(`Pengguna: ${trx.Pengguna?.nama} (${trx.Pengguna?.email})`);
-      doc.text(`Metode Bayar: ${trx.paymentMethod}`);
+      doc.text(`Metode Bayar: ${trx.paymentMethod ? trx.paymentMethod : "-"}`);
       doc.text(`Status: ${trx.status}`);
       doc.moveDown(0.5);
 
