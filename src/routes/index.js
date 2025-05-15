@@ -77,6 +77,10 @@ router.get(
   "/transaksi/get-transaksi/:id",
   transaksiController.getTransaksiById
 );
+router.get(
+  "/transaksi/cetak-laporan-transaksi",
+  transaksiController.cetakLaporanTransaksi
+);
 router.delete(
   "/transaksi/delete-transaksi/:id",
   transaksiController.deleteTransaksi

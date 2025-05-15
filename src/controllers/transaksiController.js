@@ -1,4 +1,7 @@
 const { Op } = require("sequelize");
+const PDFDocument = require("pdfkit");
+const path = require("path");
+const moment = require("moment");
 const { Transaksi, TransaksiItems, Produk, Pengguna } = require("../../models");
 
 exports.createTransaksi = async (req, res) => {
@@ -138,5 +141,83 @@ exports.getLaporanTransaksi = async (req, res) => {
       message: "Gagal mengambil laporan transaksi",
       error: error.message,
     });
+  }
+};
+
+exports.cetakLaporanTransaksi = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    let tanggalFlter = {};
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      tanggalFlter = {
+        tanggal: {
+          [Op.between]: [start, end],
+        },
+      };
+    }
+    const transaksi = await Transaksi.findAll({
+      where: tanggalFlter,
+      include: [
+        {
+          model: Pengguna,
+          attributes: ["nama", "email"],
+        },
+        {
+          model: TransaksiItems,
+          include: [{ model: Produk, attributes: ["nama", "harga"] }],
+        },
+      ],
+      order: [["tanggal", "DESC"]],
+    });
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+
+    res.setHeader("Content-Type", "application/pdf");
+    // res.setHeader(
+    //   "Content-Disposition",
+    //   "attachment; filename=laporan-transaksi.pdf"
+    // );
+    res.setHeader(
+      "Content-Disposition",
+      "inline; filename=laporan-transaksi.pdf"
+    );
+    doc.pipe(res);
+
+    // Logo & Title
+    // doc.image("public/logo.png", 50, 45, { width: 50 });
+    doc.fontSize(16).text("LAPORAN TRANSAKSI", 110, 57);
+    doc.fontSize(10).text(`Dicetak pada: ${moment().format("LLL")}`, 50, 100);
+    doc.moveDown();
+
+    transaksi.forEach((trx, index) => {
+      doc.fontSize(11).text(`No. ${index + 1}`);
+      doc.text(`Tanggal: ${moment(trx.tanggal).format("LL")}`);
+      doc.text(`Pengguna: ${trx.Pengguna?.nama} (${trx.Pengguna?.email})`);
+      doc.text(`Metode Bayar: ${trx.paymentMethod}`);
+      doc.text(`Status: ${trx.status}`);
+      doc.moveDown(0.5);
+
+      doc.text("Detail Produk:", { underline: true });
+      trx.TransaksiItems.forEach((item) => {
+        doc.text(
+          `- ${item.Produk?.nama} | Qty: ${item.quantity} | Harga: Rp ${item.Produk?.harga} | Subtotal: Rp ${item.subtotal}`
+        );
+      });
+
+      doc.text(`Total: Rp ${trx.total}`);
+      doc.moveDown();
+    });
+
+    doc.text("-----------------------------------------------------");
+    doc.text("PT. Mencari Cinta Sejati | Laporan Transaksi");
+
+    doc.end();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Gagal mencetak laporan", error: err.message });
   }
 };
