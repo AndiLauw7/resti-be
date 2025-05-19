@@ -22,7 +22,6 @@ router.get(
 router.get(
   "/pengguna/get-pengguna-byid/:id",
   verifikasiToken,
-  isAdmin,
   userController.getPenggunaByd
 );
 router.put(

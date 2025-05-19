@@ -24,6 +24,7 @@ exports.getKeranjangByPengguna = async (req, res) => {
 
 exports.createKeranjang = async (req, res) => {
   try {
+    console.log("BODY:", req.body); 
     const { penggunaId, produkId, quantity } = req.body;
 
     const dataProduk = await Produk.findByPk(produkId);

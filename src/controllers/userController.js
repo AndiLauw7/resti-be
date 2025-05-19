@@ -54,6 +54,15 @@ exports.loginPengguna = async (req, res) => {
       message: "Login Berhasil",
       token,
       role: user.role,
+      pengguna: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        role: user.role,
+        alamat: user.alamat,
+        nohp: user.nohp,
+        image: user.image,
+      },
     });
   } catch (error) {
     console.log(error);

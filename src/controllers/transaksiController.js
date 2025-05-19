@@ -64,7 +64,10 @@ exports.getTransaksiById = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await Transaksi.findByPk(id, {
-      include: [{ model: TransaksiItems, include: ["Produk"] }],
+      include: [
+        { model: TransaksiItems, include: ["Produk"] },
+        { model: Pengguna, attributes: ["id", "nama", "email"] },
+      ],
     });
     if (!data)
       return res.status(404).json({ message: "Transaksi tidak ditemukan" });
@@ -184,33 +187,6 @@ exports.cetakLaporanTransaksi = async (req, res) => {
       "inline; filename=laporan-transaksi.pdf"
     );
     doc.pipe(res);
-
-    // Logo & Title
-    // doc.image("public/logo.png", 50, 45, { width: 50 });
-
-    // const pageWidth = doc.page.width;
-    // const margin = 50;
-
-    // // Teks kiri
-    // const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
-    // doc.fontSize(10).text(printedAt, margin, 100);
-
-    // // Teks kanan
-    // const printedBy = `Dicetak oleh: Admin`;
-    // const textWidth = doc.widthOfString(printedBy);
-    // const rightX = pageWidth - margin - textWidth;
-    // doc.text(printedBy, rightX, 100);
-
-    // doc.fontSize(16).text("LAPORAN TRANSAKSI", 110, 57);
-    // doc.fontSize(10).text(`Dicetak pada: ${moment().format("LLL")}`, 50, 100);
-    //   const pageWidth = doc.page.width;
-    //   const margin = 50;
-    //   const text = `Dicetak oleh: ${moment().format("LLL")}`;
-
-    //   doc.fontSize(10).text(text, margin, 110, {
-    //     width: pageWidth - 2 * margin,
-    //     align: "right",
-    //   });
     const pageWidth = doc.page.width;
     const margin = 50;
 
@@ -218,7 +194,7 @@ exports.cetakLaporanTransaksi = async (req, res) => {
     doc.fontSize(16).text("LAPORAN TRANSAKSI", margin, 57);
 
     // Teks kiri dan kanan sejajar (pada y = 100)
-    const printedBy = `Dicetak oleh: Admin`;
+    const printedBy = `Dicetak oleh: ${req.user} `;
     const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
 
     doc.fontSize(10).text(printedAt, margin, 100, 100);
@@ -227,9 +203,8 @@ exports.cetakLaporanTransaksi = async (req, res) => {
     const rightX = pageWidth - margin - printedByWidth;
     doc.text(printedBy, rightX, 100);
 
-    // 🔧 Reset posisi X ke kiri sebelum isi laporan
-    doc.text("", margin); // set x kembali ke kiri
-    doc.moveDown(2); // turun 2 baris
+    doc.text("", margin);
+    doc.moveDown(2);
 
     transaksi.forEach((trx, index) => {
       doc.fontSize(11).text(`No. ${index + 1}`);
