@@ -21,6 +21,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
       },
+      midtransOrderId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+
       status: {
         type: DataTypes.ENUM("pending", "paid", "failed"),
         allowNull: false,

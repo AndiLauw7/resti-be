@@ -120,6 +120,7 @@ router.post(
 router.post(
   "/payment/midtrans/notifikasi",
   express.raw({ type: "application/json" }),
+  // express.json(),
   paymentController.handleNotifications
 );
 

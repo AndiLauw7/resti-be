@@ -24,7 +24,7 @@ exports.getKeranjangByPengguna = async (req, res) => {
 
 exports.createKeranjang = async (req, res) => {
   try {
-    console.log("BODY:", req.body); 
+    console.log("BODY:", req.body);
     const { penggunaId, produkId, quantity } = req.body;
 
     const dataProduk = await Produk.findByPk(produkId);
@@ -34,7 +34,11 @@ exports.createKeranjang = async (req, res) => {
 
     const harga = dataProduk.harga;
     const stokTersedia = dataProduk.stok;
-
+    if (quantity > stokTersedia) {
+      return res.status(400).json({
+        message: `Stok tidak mencukupi. Maksimal: ${stokTersedia}`,
+      });
+    }
     const dataProdukYangTersedia = await keranjang.findOne({
       where: { penggunaId, produkId },
     });
@@ -73,8 +77,8 @@ exports.createKeranjang = async (req, res) => {
       totalHarga,
     });
 
-    dataProduk.stok = stokTersedia - quantity;
-    await dataProduk.save();
+    // dataProduk.stok = stokTersedia - quantity;
+    // await dataProduk.save();
     return res.status(201).json({
       message: "Produk ditambahkan ke keranjang",
       data: dataKeranjangBaru,

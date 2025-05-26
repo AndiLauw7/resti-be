@@ -2,7 +2,13 @@ const { Op } = require("sequelize");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const moment = require("moment");
-const { Transaksi, TransaksiItems, Produk, Pengguna } = require("../../models");
+const {
+  Transaksi,
+  TransaksiItems,
+  Produk,
+  Pengguna,
+  keranjang,
+} = require("../../models");
 
 exports.createTransaksi = async (req, res) => {
   const { penggunaId, tanggal, items } = req.body;
@@ -34,6 +40,20 @@ exports.createTransaksi = async (req, res) => {
       dataProduk.stok -= item.quantity;
       await dataProduk.save();
     }
+
+    console.log(
+      "Hapus keranjang untuk:",
+      penggunaId,
+      items.map((i) => i.keranjangId)
+    );
+    await keranjang.destroy({
+      where: {
+        penggunaId,
+        id: {
+          [Op.in]: items.map((item) => item.keranjangId),
+        },
+      },
+    });
     return res
       .status(201)
       .json({ message: "Transaksi berhasil dibuat", data: dataTransaksi });
