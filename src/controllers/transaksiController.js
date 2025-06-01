@@ -191,91 +191,94 @@ exports.getLaporanTransaksi = async (req, res) => {
 };
 
 exports.cetakLaporanTransaksi = async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
-    let tanggalFlter = {};
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      tanggalFlter = {
-        tanggal: {
-          [Op.between]: [start, end],
-        },
-      };
-    }
-    const transaksi = await Transaksi.findAll({
-      where: tanggalFlter,
-      include: [
-        {
-          model: Pengguna,
-          attributes: ["nama", "email"],
-        },
-        {
-          model: TransaksiItems,
-          include: [{ model: Produk, attributes: ["nama", "harga"] }],
-        },
-      ],
-      order: [["tanggal", "DESC"]],
-    });
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+   
+      try {
+        const { startDate, endDate } = req.query;
+        let tanggalFlter = {};
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          tanggalFlter = {
+            tanggal: {
+              [Op.between]: [start, end],
+            },
+          };
+        }
+        const transaksi = await Transaksi.findAll({
+          where: tanggalFlter,
+          include: [
+            {
+              model: Pengguna,
+              attributes: ["nama", "email"],
+            },
+            {
+              model: TransaksiItems,
+              include: [{ model: Produk, attributes: ["nama", "harga"] }],
+            },
+          ],
+          order: [["tanggal", "DESC"]],
+        });
+        const doc = new PDFDocument({ margin: 50, size: "A4" });
 
-    res.setHeader("Content-Type", "application/pdf");
-    // res.setHeader(
-    //   "Content-Disposition",
-    //   "attachment; filename=laporan-transaksi.pdf"
-    // );
-    res.setHeader(
-      "Content-Disposition",
-      "inline; filename=laporan-transaksi.pdf"
-    );
-    doc.pipe(res);
-    const pageWidth = doc.page.width;
-    const margin = 50;
-
-    // Judul
-    doc.fontSize(16).text("LAPORAN TRANSAKSI", margin, 57);
-
-    // Teks kiri dan kanan sejajar (pada y = 100)
-    const printedBy = `Dicetak oleh: ${req.user} `;
-    const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
-
-    doc.fontSize(10).text(printedAt, margin, 100, 100);
-
-    const printedByWidth = doc.widthOfString(printedBy);
-    const rightX = pageWidth - margin - printedByWidth;
-    doc.text(printedBy, rightX, 100);
-
-    doc.text("", margin);
-    doc.moveDown(2);
-
-    transaksi.forEach((trx, index) => {
-      doc.fontSize(11).text(`No. ${index + 1}`);
-      doc.text(`Tanggal: ${moment(trx.tanggal).format("LL")}`);
-      doc.text(`Pengguna: ${trx.Pengguna?.nama} (${trx.Pengguna?.email})`);
-      doc.text(`Metode Bayar: ${trx.paymentMethod ? trx.paymentMethod : "-"}`);
-      doc.text(`Status: ${trx.status}`);
-      doc.moveDown(0.5);
-
-      doc.text("Detail Produk:", { underline: true });
-      trx.TransaksiItems.forEach((item) => {
-        doc.text(
-          `- ${item.Produk?.nama} | Qty: ${item.quantity} | Harga: Rp ${item.Produk?.harga} | Subtotal: Rp ${item.subtotal}`
+        res.setHeader("Content-Type", "application/pdf");
+        // res.setHeader(
+        //   "Content-Disposition",
+        //   "attachment; filename=laporan-transaksi.pdf"
+        // );
+        res.setHeader(
+          "Content-Disposition",
+          "inline; filename=laporan-transaksi.pdf"
         );
-      });
+        doc.pipe(res);
+        const pageWidth = doc.page.width;
+        const margin = 50;
 
-      doc.text(`Total: Rp ${trx.total}`);
-      doc.moveDown();
-    });
+        // Judul
+        doc.fontSize(16).text("LAPORAN TRANSAKSI", margin, 57);
 
-    doc.text("-----------------------------------------------------");
-    doc.text("PT. Mencari Cinta Sejati | Laporan Transaksi");
+        // Teks kiri dan kanan sejajar (pada y = 100)
+        const printedBy = `Dicetak oleh: Admin `;
+        const printedAt = `Dicetak pada: ${moment().format("LLL")}`;
 
-    doc.end();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Gagal mencetak laporan", error: err.message });
-  }
+        doc.fontSize(10).text(printedAt, margin, 100, 100);
+
+        const printedByWidth = doc.widthOfString(printedBy);
+        const rightX = pageWidth - margin - printedByWidth;
+        doc.text(printedBy, rightX, 100);
+
+        doc.text("", margin);
+        doc.moveDown(2);
+
+        transaksi.forEach((trx, index) => {
+          doc.fontSize(11).text(`No. ${index + 1}`);
+          doc.text(`Tanggal: ${moment(trx.tanggal).format("LL")}`);
+          doc.text(`Pengguna: ${trx.Pengguna?.nama} (${trx.Pengguna?.email})`);
+          doc.text(
+            `Metode Bayar: ${trx.paymentMethod ? trx.paymentMethod : "-"}`
+          );
+          doc.text(`Status: ${trx.status}`);
+          doc.moveDown(0.5);
+
+          doc.text("Detail Produk:", { underline: true });
+          trx.TransaksiItems.forEach((item) => {
+            doc.text(
+              `- ${item.Produk?.nama} | Qty: ${item.quantity} | Harga: Rp ${item.Produk?.harga} | Subtotal: Rp ${item.subtotal}`
+            );
+          });
+
+          doc.text(`Total: Rp ${trx.total}`);
+          doc.moveDown();
+        });
+
+        doc.text("-----------------------------------------------------");
+        doc.text("PT. Furniture Custom | Laporan Transaksi");
+
+        doc.end();
+      } catch (error) {
+        console.error(error);
+        res
+          .status(500)
+          .json({ message: "Gagal mencetak laporan", error: err.message });
+      }
 };
