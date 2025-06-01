@@ -99,6 +99,29 @@ exports.getTransaksiById = async (req, res) => {
   }
 };
 
+exports.getTransaksiByUserId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await Transaksi.findAll({
+      where: { penggunaId: id },
+      include: [
+        { model: TransaksiItems, include: ["Produk"] },
+        { model: Pengguna, attributes: ["id", "nama", "email"] },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({ message: "Berhasil ambil transaksi", data });
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal ambil transaksi",
+      error: error.message,
+    });
+  }
+};
+
+
 exports.deleteTransaksi = async (req, res) => {
   try {
     const { id } = req.params;

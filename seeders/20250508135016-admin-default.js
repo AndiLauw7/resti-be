@@ -5,15 +5,7 @@ const { hashingPassrowd } = require("../src/utils/hashingPassword");
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-     */
+
     const hashedPassword = await hashingPassrowd("admin123456", 10);
     await queryInterface.bulkInsert("Penggunas", [
       {

@@ -77,6 +77,10 @@ router.get(
   transaksiController.getTransaksiById
 );
 router.get(
+  "/transaksi/get-transaksi-user/:id",
+  transaksiController.getTransaksiByUserId
+);
+router.get(
   "/transaksi/cetak-laporan-transaksi",
   transaksiController.cetakLaporanTransaksi
 );
