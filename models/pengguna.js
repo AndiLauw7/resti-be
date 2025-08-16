@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
       Pengguna.hasMany(models.keranjang, {
         foreignKey: "penggunaId",
       });
+      Pengguna.hasMany(models.message, {
+        foreignKey: "sendId",
+        as: "SentMessages",
+      });
+      Pengguna.hasMany(models.message, {
+        foreignKey: "receiveId",
+        as: "ReceivedMessages",
+      });
     }
   }
   Pengguna.init(

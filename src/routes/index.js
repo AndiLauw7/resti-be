@@ -9,6 +9,7 @@ const keranjangController = require("../controllers/keranjangController");
 const paymentController = require("../controllers/paymentController");
 const { verifikasiToken, isAdmin } = require("../middlewares/authMiddlewares");
 const upload = require("../middlewares/uploadImage");
+const messageController = require("../controllers/messageController");
 
 router.post("/login", userController.loginPengguna);
 router.post("/register", userController.registerPengguna);
@@ -129,7 +130,11 @@ router.post(
   paymentController.handleNotifications
 );
 
-
-
-
+router.post("/send-message", verifikasiToken, messageController.sendMessage);
+router.get("/get-message", verifikasiToken, messageController.getMessage);
+router.get(
+  "/get-chat-partners",
+  verifikasiToken,
+  messageController.getChatPartners
+);
 module.exports = router;

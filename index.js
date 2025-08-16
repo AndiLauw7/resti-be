@@ -1,14 +1,27 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const sequelize = require("./config/config.json");
-
-
 const path = require("path");
 require("dotenv").config();
-console.log("Server Key:", process.env.MIDTRANS_SERVER_KEY);
+
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const socketHandler = require("./src/middlewares/socketHandler.js");
 const cron = require("node-cron");
 const app = express();
+const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+  socketHandler(io, socket);
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -23,7 +36,7 @@ const {
   autoSyncPendingTransactions,
 } = require("./src/controllers/paymentController.js");
 cron.schedule("*/1 * * * *", () => {
-  console.log("⏰ [CRON] Mengecek transaksi pending...");
+  // console.log("[CRON] Mengecek transaksi pending...");
   autoSyncPendingTransactions();
 });
 
@@ -37,6 +50,12 @@ app.use((err, req, res, next) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log(`Server jalan di port ${PORT}`);
+// });
+
+server.listen(PORT, () => {
   console.log(`Server jalan di port ${PORT}`);
 });
+
+
