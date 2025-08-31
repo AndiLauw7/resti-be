@@ -2,7 +2,6 @@ const { message: Message, Pengguna } = require("../../models");
 const { Op } = require("sequelize");
 exports.sendMessage = async (req, res) => {
   try {
-    // const { sendId, receiveId, content } = req.body;
     const sendId = req.user.id;
     const { receiveId, content } = req.body;
     if (!sendId || !receiveId || !content) {
