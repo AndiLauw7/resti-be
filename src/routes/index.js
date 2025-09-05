@@ -29,7 +29,7 @@ router.put(
   "/pengguna/update-pengguna/:id",
   upload.single("image"),
   verifikasiToken,
-  userController.updatePengguna
+  userController.updataPengguna
 );
 router.delete(
   "/pengguna/delete-pengguna/:id",

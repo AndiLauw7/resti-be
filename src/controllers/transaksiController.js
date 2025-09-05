@@ -11,7 +11,7 @@ const {
 } = require("../../models");
 
 exports.createTransaksi = async (req, res) => {
-  const { penggunaId, tanggal, items } = req.body;
+  const { penggunaId, tanggal, items, alamat_kirim } = req.body;
   try {
     let total = 0;
     for (const item of items) {
@@ -27,6 +27,7 @@ exports.createTransaksi = async (req, res) => {
       penggunaId,
       tanggal,
       total,
+      alamat_kirim,
     });
     for (const item of items) {
       const dataProduk = await Produk.findByPk(item.produkId);
@@ -222,10 +223,7 @@ exports.cetakLaporanTransaksi = async (req, res) => {
         const doc = new PDFDocument({ margin: 50, size: "A4" });
 
         res.setHeader("Content-Type", "application/pdf");
-        // res.setHeader(
-        //   "Content-Disposition",
-        //   "attachment; filename=laporan-transaksi.pdf"
-        // );
+
         res.setHeader(
           "Content-Disposition",
           "inline; filename=laporan-transaksi.pdf"

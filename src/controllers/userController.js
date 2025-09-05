@@ -105,35 +105,62 @@ exports.getPenggunaByd = async (req, res) => {
   }
 };
 
-exports.updatePengguna = async (req, res) => {
+// exports.updatePengguna = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { nama, email, alamat, nohp, role } = req.body;
+//     const user = await Pengguna.findByPk(id);
+//     if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+//     const image = req.file ? `/uploads/${req.file.filename}` : null;
+//     const dataUpdate = await user.update(
+//       {
+//         nama,
+//         email,
+//         alamat,
+//         nohp,
+//         image,
+//         role,
+//       },
+//       { where: { id } }
+//     );
+//     return res
+//       .status(200)
+//       .json({ message: "User berhasil diupdate", dataUpdate: user });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Gagal update user", error: error.message });
+//   }
+// };
+
+exports.updataPengguna = async (req,res)=>{
   try {
-    const { id } = req.params;
-    const { nama, email, alamat, nohp, role } = req.body;
-    const user = await Pengguna.findByPk(id);
-    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+    // const {id}= req.params;
+    const userId = req.user.id
+    const {nama,email,alamat,nohp}=req.body;
+    const user = await Pengguna.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({message:"User Not Found"})
 
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
-    const dataUpdate = await user.update(
-      {
-        nama,
-        email,
-        alamat,
-        nohp,
-        image,
-        role,
-      },
-      { where: { id } }
-    );
-    return res
-      .status(200)
-      .json({ message: "User berhasil diupdate", dataUpdate: user });
+    }
+    const image = req.file ?  `/uploads/${req.file.filename}` : user.image;
+    await user.update({
+      nama,
+      email,
+      alamat,nohp,image
+    })
+    return res.status(200).json({
+      mesaage:"Pengguna Berhasil Diupdate",
+      data:user,
+    })
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Gagal update user", error: error.message });
+     return res.status(500).json({
+      message: "Gagal update user",
+      error: error.message,
+    });
   }
-};
-
+}
 exports.deletePengguna = async (req, res) => {
   try {
     const { id } = req.params;
