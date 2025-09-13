@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       nohp: DataTypes.STRING,
       image: DataTypes.STRING,
       password: DataTypes.STRING,
+
       role: {
         type: DataTypes.ENUM("admin", "pembeli"),
         allowNull: false,

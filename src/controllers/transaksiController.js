@@ -11,7 +11,18 @@ const {
 } = require("../../models");
 
 exports.createTransaksi = async (req, res) => {
-  const { penggunaId, tanggal, items, alamat_kirim } = req.body;
+  const {
+    penggunaId,
+    tanggal,
+    items,
+    alamat_kirim,
+    provinsiId,
+    kotaId,
+    kurir,
+    layanan,
+    ongkir,
+    estimasi,
+  } = req.body;
   try {
     let total = 0;
     for (const item of items) {
@@ -23,11 +34,18 @@ exports.createTransaksi = async (req, res) => {
       }
       total += dataProduk.harga * item.quantity;
     }
+    const ongkirNumber = parseInt(ongkir) || 0;
     const dataTransaksi = await Transaksi.create({
       penggunaId,
       tanggal,
-      total,
+      total: total + ongkirNumber,
       alamat_kirim,
+      provinsi: provinsiId || null,
+      kota: kotaId || null,
+      ongkir: ongkirNumber,
+      kurir: kurir || null,
+      layanan: layanan || null,
+      estimasi: estimasi || null,
     });
     for (const item of items) {
       const dataProduk = await Produk.findByPk(item.produkId);
@@ -121,8 +139,6 @@ exports.getTransaksiByUserId = async (req, res) => {
     });
   }
 };
-
-
 exports.deleteTransaksi = async (req, res) => {
   try {
     const { id } = req.params;

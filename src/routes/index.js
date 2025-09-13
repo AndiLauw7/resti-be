@@ -10,6 +10,9 @@ const paymentController = require("../controllers/paymentController");
 const { verifikasiToken, isAdmin } = require("../middlewares/authMiddlewares");
 const upload = require("../middlewares/uploadImage");
 const messageController = require("../controllers/messageController");
+const { getProvinces, getCities } = require("../services/wilayahServices");
+const { trackResi } = require("../services/ongkirServices");
+const { cekOngkir } = require("../services/rajaOngkirServices");
 
 router.post("/login", userController.loginPengguna);
 router.post("/register", userController.registerPengguna);
@@ -129,6 +132,54 @@ router.post(
   // express.json(),
   paymentController.handleNotifications
 );
+
+router.get("/provinces", async (req, res) => {
+  try {
+    const data = await getProvinces();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/cities/:id_provinsi", async (req, res) => {
+  try {
+    const data = await getCities(req.params.id_provinsi);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/track-resi", async (req, res) => {
+  try {
+    const { courier, awb } = req.body; // contoh: courier = "jne", awb = "582230008329223"
+    const data = await trackResi({ courier, awb });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/cost", async (req, res) => {
+  const { origin, originType, destination, destinationType, weight, courier } =
+    req.body;
+
+  try {
+    const result = await cekOngkir({
+      origin,
+      originType,
+      destination,
+      destinationType,
+      weight,
+      courier,
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("❌ Error /cost:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.post("/send-message", verifikasiToken, messageController.sendMessage);
 router.get("/get-message", verifikasiToken, messageController.getMessage);

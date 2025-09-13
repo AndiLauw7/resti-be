@@ -18,6 +18,8 @@ const io = new Server(server, {
   },
 });
 
+console.log("Routes terdaftar...");
+
 io.on("connection", (socket) => {
   socketHandler(io, socket);
 });
