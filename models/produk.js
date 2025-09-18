@@ -15,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
       stok: DataTypes.INTEGER,
       kategoriId: DataTypes.INTEGER,
       image: DataTypes.STRING,
+      deskripsi: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      keterangan: DataTypes.STRING,
     },
     {
       sequelize,

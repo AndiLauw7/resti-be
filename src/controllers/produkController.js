@@ -23,7 +23,7 @@ exports.getProdukById = async (req, res) => {
   try {
     const { id } = req.params;
     const produk = await Produk.findByPk(id, {
-      include: [{ model: Kategori, attributes: ["nama", "deskripsi"] }],
+      include: [{ model: Kategori, attributes: ["nama", "keterangan"] }],
     });
     if (!produk) {
       return res.status(400).json({ message: "data tidak ditemukan" });
@@ -41,7 +41,7 @@ exports.getProdukById = async (req, res) => {
 
 exports.createProduk = async (req, res) => {
   try {
-    const { nama, kategoriId, harga, stok } = req.body;
+    const { nama, kategoriId, harga, stok, deskripsi, keterangan } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     const dataProdukBaru = await Produk.create({
@@ -50,6 +50,8 @@ exports.createProduk = async (req, res) => {
       harga,
       stok,
       image,
+      deskripsi,
+      keterangan,
     });
 
     const dataProduk = dataProdukBaru;
@@ -67,7 +69,7 @@ exports.createProduk = async (req, res) => {
 exports.updateProduk = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nama, kategoriId, harga, stok } = req.body;
+    const { nama, kategoriId, harga, stok, deskripsi, keterangan } = req.body;
     const dataUpdateProduk = await Produk.findByPk(id);
 
     if (!dataUpdateProduk) {
@@ -83,6 +85,8 @@ exports.updateProduk = async (req, res) => {
         harga,
         stok,
         image,
+        deskripsi,
+        keterangan,
       },
       {
         where: { id },
